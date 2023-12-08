@@ -20,7 +20,7 @@ namespace WorkingWithExcel
             var ex = new ExcelWorkspace(inputFilePath);
             foreach(var el in ex.Sheets)
             {
-                Console.WriteLine(el.Target);
+                Console.WriteLine(el.Name);
             }
             //setRelationshipForMedia(inputFilePath, imageFile, "image1");
         }
