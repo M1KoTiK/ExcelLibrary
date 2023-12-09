@@ -15,7 +15,6 @@ namespace WorkingWithExcel
     {
         public int Count { get; private set; }
         public int UniqueCount { get; private set; }
-        public ImmutableList<string> SharedString { get; private set; }
 
 
         public SharedStrings(ExcelWorkspace workspace) 
@@ -27,9 +26,7 @@ namespace WorkingWithExcel
             var stream = sharedStringsArchive.Open();
             XDocument doc = XDocument.Load(stream);
             var sharedStringArray = new List<string>();
-                
 
-            SharedString = sharedStringArray.ToImmutableList();
 
         }
         

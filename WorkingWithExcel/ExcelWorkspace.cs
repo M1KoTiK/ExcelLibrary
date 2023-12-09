@@ -19,11 +19,11 @@ namespace WorkingWithExcel
         public ExcelWorkspace(FileInfo excelFile)
         {
             ExcelFile = excelFile;
-            Setup();
+            Update();
 
         }
 
-        private void Setup()
+        private void Update()
         {
             XMLSheets = GetXMLSheets().ToList();
             Sheets = GetSheetsFromXMLSheets().ToList();
@@ -36,7 +36,7 @@ namespace WorkingWithExcel
             using var fileStream = File.Open(ExcelFile.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var workbookArchive = archive.GetEntry("xl/workbook.xml");
-            if (workbookArchive == null) throw new NullReferenceException("Файл workbook.xml отсутствует");
+            if (workbookArchive == null) throw new NullReferenceException("Файл xl/workbook.xml отсутствует");
             var stream = workbookArchive.Open();
             XDocument doc = XDocument.Load(stream);
             stream.Dispose();
@@ -53,6 +53,59 @@ namespace WorkingWithExcel
             }
             return sheets;
         }
+
+        public IEnumerable<XElement> GetSharedStringXML()
+        {
+
+            using var fileStream = File.Open(ExcelFile.FullName, FileMode.Open);
+            using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
+            var workbookArchive = archive.GetEntry("xl/sharedStrings.xml");
+            if (workbookArchive == null) throw new NullReferenceException("Файл xl/sharedStrings.xml отсутствует");
+            var stream = workbookArchive.Open();
+            XDocument doc = XDocument.Load(stream);
+            stream.Dispose();
+            return (from el in doc.Descendants() where el.Name.LocalName == "si" select el).AsEnumerable();
+        }
+
+        public int FindSharedString(string str)
+        {
+            var xmlSharedStringList = GetSharedStringXML().ToList();
+            for (int i = 0; i < xmlSharedStringList.Count(); i++)
+            {
+                if (xmlSharedStringList[i].Value == str)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public void AddSharedString(string sharedString)
+        {
+            if (FindSharedString(sharedString) != -1)
+            {
+                return;
+            }
+
+            using var fileStream = File.Open(ExcelFile.FullName, FileMode.Open);
+            using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
+            var workbookArchive = archive.GetEntry("xl/sharedStrings.xml");
+            if (workbookArchive == null) throw new NullReferenceException("Файл xl/sharedStrings.xml отсутствует");
+
+            var stream = workbookArchive.Open();
+            XDocument doc = XDocument.Load(stream);
+            doc.Root.Add(ExcelXML.CreateSharedStringXElement(sharedString, doc.Root.GetDefaultNamespace() ));
+
+            //Очищаем стрим чтобы данные в файле не дублировались
+            stream.Position = 0;
+            stream.SetLength(0);
+
+            doc.Save(stream);
+            stream.Dispose();
+            
+        }
+
+
 
         
     }
