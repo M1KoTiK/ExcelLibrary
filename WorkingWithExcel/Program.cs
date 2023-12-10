@@ -18,11 +18,7 @@ namespace WorkingWithExcel
             var inputFilePath = new FileInfo("C:\\Users\\User\\Desktop\\input.xlsx");
             var outputFilePath = "C:\\Users\\User\\Desktop\\output.xlsx";
             var ex = new ExcelWorkspace(inputFilePath);
-            ex.AddSharedString("test143");
-            foreach(var ss in ex.GetSharedStringXML())
-            {
-                Console.WriteLine(ss.Value);
-            }
+
             //setRelationshipForMedia(inputFilePath, imageFile, "image1");
         }
         public static void setRelationshipForMedia(FileInfo excelFile, FileInfo imageName, string idForRelationship)

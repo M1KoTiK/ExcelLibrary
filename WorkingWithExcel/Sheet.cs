@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,6 @@ namespace WorkingWithExcel
         public string SheetId { get; private set; }
         public string RId { get; private set; }
         public string SheetFileName { get; private set; }
-
 
         ExcelWorkspace workspace;
 
@@ -55,12 +55,82 @@ namespace WorkingWithExcel
             var targetAttr = relationshipElement.Attribute("Target");
             if(targetAttr == null) throw new NullReferenceException("При попытки парсить workbook.xml.rels relationship (sheet) не найден атрибут Target");
             SheetFileName = new FileInfo(targetAttr.Value).Name;
-
-
         }
-        public void WriteValue(string value, int row, int col)
-        {
 
+        public void WriteValue(string value, int row, string col)
+        {
+            using var fileStream = File.Open(workspace.ExcelFile.FullName, FileMode.Open);
+            using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
+            var path = "xl/worksheets/" + SheetFileName;
+            var relationshipArchive = archive.GetEntry(path);
+            if (relationshipArchive == null) throw new NullReferenceException("Файл " + SheetFileName + "отсутствует");
+            var stream = relationshipArchive.Open();
+            XDocument doc = XDocument.Load(stream);
+            var rows = (from r in doc.Descendants() where r.Name.LocalName == "row" select r).ToList();
+            var root = doc.Root;
+            if (root == null) throw new NullReferenceException("в файле " + path + " отсутсвует элемент root");
+
+            var rowEl = ExcelXMLHelper.FindRowByRowNumber(root, row);
+            if (rowEl == null)
+            {
+
+            }
+            else
+            {
+                var colEl = ExcelXMLHelper.FindColumnByColumnName(rowEl, col);
+                if(colEl == null)
+                {
+                    
+                }
+                else
+                {
+                    var valueEl = (from el in colEl.Descendants() where el.Name.LocalName == "v" select el).FirstOrDefault();
+                    if(valueEl != null)
+                    {
+
+                    }
+                }
+                
+            }
+            foreach (var r in rows)
+            {
+                var rowAttr = r.Attribute("r");
+                if (rowAttr == null) throw new NullReferenceException("При парсе" + SheetFileName + "не найден атрибут r для row");
+                if(rowAttr.Value == row.ToString())
+                {
+                    foreach(var c in r.Descendants())
+                    {
+                        var colAttr = c.Attribute("r");
+                        if (colAttr == null) break;
+                        if(colAttr.Value == col)
+                        {
+                            var valueElement = (from el in c.Descendants() where el.Name.LocalName == "v" select el).FirstOrDefault();
+                            if (valueElement == null)
+                            {
+                                Console.WriteLine("123asd");
+                            }
+                            else
+                            {
+                                valueElement.Value = value;
+                                stream.Position = 0;
+                                stream.SetLength(0);
+                                doc.Save(stream);
+                                stream.Dispose();
+                            }
+                            return;
+                        }
+                        else
+                        {
+                            ExcelXMLHelper.CreateColumnXElement(col, value, doc.Root?.GetDefaultNamespace());
+                            
+                        }
+                    }
+                }
+                else
+                {
+
+                }
+            }
         }
 
     }
