@@ -20,6 +20,8 @@ namespace WorkingWithExcel
             var ex = new ExcelFile(inputFilePath);
             ex.DocInfo.RefreshData();
             Console.WriteLine(ex.DocInfo.ModifyDate);
+            ex.DocInfo.ModifyDate = DateTime.Now;
+            Console.WriteLine(ex.DocInfo.ModifyDate);
             //setRelationshipForMedia(inputFilePath, imageFile, "image1");
         }
         public static void setRelationshipForMedia(FileInfo excelFile, FileInfo imageName, string idForRelationship)
@@ -61,9 +63,6 @@ namespace WorkingWithExcel
             stream.Dispose();
 
             Console.WriteLine(doc);
-
-
-
 
         }
         public static XElement CreateRelationshipImageXElement(XName ns, string id, string imageNameWithExt)

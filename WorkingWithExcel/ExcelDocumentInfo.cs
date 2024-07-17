@@ -19,29 +19,29 @@ namespace WorkingWithExcel
             set
             {
                 author = value;
-                //SetAuthor(value);
+                SetAttributeValueByName("creator", value);
             }
         }
 
         private DateTime creationDate;
         public DateTime CreationDate
         {
-            get => creationDate;
+            get => creationDate.ToLocalTime();
             set
             {
                 creationDate = value;
-               // SetCreationDate(value);
+                SetAttributeValueByName("created", value.ToUniversalTime().ToString("s"));
             }
         }
 
         private DateTime modifyDate;
         public DateTime ModifyDate
         {
-            get => modifyDate;
+            get => modifyDate.ToLocalTime();
             set
             {
                 modifyDate = value;
-                //SetModifyDate(value);
+                SetAttributeValueByName("modified", value.ToUniversalTime().ToString("s"));
             }
         }
 
@@ -52,7 +52,7 @@ namespace WorkingWithExcel
             set
             {
                 lastModifyAuthor = value;
-                //SetlastModifyAuthor(value);
+                SetAttributeValueByName("modified", value);
             }
         }
 
@@ -68,13 +68,13 @@ namespace WorkingWithExcel
         public void RefreshData()
         {
             propsCoreXMLDoc = GetCorePropsXML();
-            author = FindXElementInDocCorePropsByName("creator").Value;
-            lastModifyAuthor = FindXElementInDocCorePropsByName("lastModifiedBy").Value;
-            creationDate = DateTime.Parse(FindXElementInDocCorePropsByName("created").Value.Replace("T", " "));
-            modifyDate = DateTime.Parse(FindXElementInDocCorePropsByName("modified").Value.Replace("T", " "));
+            author = FindAttributeByName("creator").Value;
+            lastModifyAuthor = FindAttributeByName("lastModifiedBy").Value;
+            creationDate = DateTime.Parse(FindAttributeByName("created").Value);
+            modifyDate = DateTime.Parse(FindAttributeByName("modified").Value);
         }
 
-        private XElement FindXElementInDocCorePropsByName(string elementName)
+        private XElement FindAttributeByName(string elementName)
         {
             var els = propsCoreXMLDoc.Descendants();
             foreach (var el in els)
@@ -85,6 +85,28 @@ namespace WorkingWithExcel
                 }
             }
             throw new NullReferenceException($"В файле {docPropsPath} отсутствует элемент {elementName}");
+        }
+        private void SetAttributeValueByName(string elementName, string value)
+        {
+            using (var fileStream = File.Open(FileLocation.FullName, FileMode.Open))
+            {
+                using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
+                var entry = archive.GetEntry(docPropsPath);
+                if (entry == null) throw new NullReferenceException($"Файл {docPropsPath} отсутствует");
+                var stream = entry.Open();
+                XDocument doc = XDocument.Load(stream);
+                foreach (var el in doc.Descendants())
+                {
+                    if (el.Name.LocalName == elementName)
+                    {
+                        el.Value = value;
+                    }
+                }
+                stream.Position = 0;
+                stream.SetLength(0);
+                doc.Save(stream);
+                stream.Dispose();
+            }
         }
         private XDocument GetCorePropsXML()
         {
