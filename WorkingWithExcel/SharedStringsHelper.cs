@@ -13,7 +13,7 @@ namespace WorkingWithExcel
         static public IEnumerable<XElement> GetSharedStringXML(ExcelWorkspace workspace)
         {
 
-            using var fileStream = File.Open(workspace.ExcelFile.FullName, FileMode.Open);
+            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var workbookArchive = archive.GetEntry("xl/sharedStrings.xml");
             if (workbookArchive == null) throw new NullReferenceException("Файл xl/sharedStrings.xml отсутствует");
@@ -43,7 +43,7 @@ namespace WorkingWithExcel
                 return -1;
             }
 
-            using var fileStream = File.Open(workspace.ExcelFile.FullName, FileMode.Open);
+            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var workbookArchive = archive.GetEntry("xl/sharedStrings.xml");
             if (workbookArchive == null) throw new NullReferenceException("Файл xl/sharedStrings.xml отсутствует");

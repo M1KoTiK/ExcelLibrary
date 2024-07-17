@@ -38,7 +38,7 @@ namespace WorkingWithExcel
             if (rIdAttr == null) throw new NullReferenceException("При попытки парсить XmlSheet не найден атрибут r:id");
             RId = rIdAttr.Value;
 
-            using var fileStream = File.Open(workspace.ExcelFile.FullName, FileMode.Open);
+            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var relationshipArchive = archive.GetEntry("xl/_rels/workbook.xml.rels");
             if (relationshipArchive == null) throw new NullReferenceException("Файл workbook.xml.rels отсутствует");
@@ -59,7 +59,7 @@ namespace WorkingWithExcel
 
         public void WriteValue(string value, int row, string col)
         {
-            using var fileStream = File.Open(workspace.ExcelFile.FullName, FileMode.Open);
+            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var path = "xl/worksheets/" + SheetFileName;
             var relationshipArchive = archive.GetEntry(path);

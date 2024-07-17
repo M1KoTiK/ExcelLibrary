@@ -13,17 +13,16 @@ namespace WorkingWithExcel
     public class ExcelWorkspace
     {
 
-        public FileInfo ExcelFile { get; private set; }
+        public FileInfo FileLocation { get; private set; }
         
-        public ExcelWorkspace(FileInfo excelFile)
+        public ExcelWorkspace(FileInfo fileLocation)
         {
-            ExcelFile = excelFile;
-
+            FileLocation = fileLocation;
         }
 
         private IEnumerable<XElement> GetXMLSheets()
         {
-            using var fileStream = File.Open(ExcelFile.FullName, FileMode.Open);
+            using var fileStream = File.Open(FileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var workbookArchive = archive.GetEntry("xl/workbook.xml");
             if (workbookArchive == null) throw new NullReferenceException("Файл xl/workbook.xml отсутствует");
@@ -31,9 +30,8 @@ namespace WorkingWithExcel
             XDocument doc = XDocument.Load(stream);
             stream.Dispose();
             return (from el in doc.Descendants() where el.Name.LocalName == "sheet" select el).AsEnumerable();
-            
         }
-
+        
         public IEnumerable<Sheet> GetSheets()
         {
             var sheets = new List<Sheet>();

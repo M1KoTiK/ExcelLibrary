@@ -15,10 +15,11 @@ namespace WorkingWithExcel
         {
             var imageFile = new FileInfo("C:\\Users\\User\\Pictures\\image_kaiji.jpg");
 
-            var inputFilePath = new FileInfo("C:\\Users\\User\\Desktop\\input.xlsx");
-            var outputFilePath = "C:\\Users\\User\\Desktop\\output.xlsx";
-            var ex = new ExcelWorkspace(inputFilePath);
-
+            var inputFilePath = new FileInfo("C:\\Users\\User\\Desktop\\Проекты\\ExcelLibrary\\testExcel.xlsx");
+            var outputFilePath = "C:\\Users\\User\\Desktop\\Проекты\\ExcelLibrary\\testExcel.xlsx";
+            var ex = new ExcelFile(inputFilePath);
+            ex.DocInfo.RefreshData();
+            Console.WriteLine(ex.DocInfo.ModifyDate);
             //setRelationshipForMedia(inputFilePath, imageFile, "image1");
         }
         public static void setRelationshipForMedia(FileInfo excelFile, FileInfo imageName, string idForRelationship)
