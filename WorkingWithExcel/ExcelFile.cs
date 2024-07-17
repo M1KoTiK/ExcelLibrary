@@ -16,6 +16,7 @@ namespace WorkingWithExcel
         public FileInfo FileLocation { get; private set; }
         
         public ExcelDocumentInfo DocInfo { get; private set; }
+        public IEnumerable<Sheet> Sheets { get; private set; }
         public ExcelFile(FileInfo fileLocation)
         {
             FileLocation = fileLocation;
@@ -25,6 +26,29 @@ namespace WorkingWithExcel
         private void TryLoadInfoFromFile()
         {
 
-        }       
+        }
+        
+
+        public IEnumerable<Sheet> GetSheets()
+        {
+            var sheets = new List<Sheet>();
+            foreach (var el in GetXMLSheets())
+            {
+                sheets.Add(new Sheet(this, el));
+            }
+            return sheets;
+        }
+
+        public Sheet? SheetByName(string sheetName)
+        {
+            foreach (var sheet in GetSheets())
+            {
+                if (sheet.Name == sheetName)
+                {
+                    return sheet;
+                }
+            }
+            return null;
+        }
     }
 }

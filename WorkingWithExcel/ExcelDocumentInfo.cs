@@ -63,8 +63,18 @@ namespace WorkingWithExcel
         public ExcelDocumentInfo(FileInfo fileLocation)
         {
             FileLocation = fileLocation;
-            RefreshData();
+            propsCoreXMLDoc = GetCorePropsXML();
+            author = FindAttributeByName("creator").Value;
+            lastModifyAuthor = FindAttributeByName("lastModifiedBy").Value;
+            creationDate = DateTime.Parse(FindAttributeByName("created").Value);
+            modifyDate = DateTime.Parse(FindAttributeByName("modified").Value);
         }
+        
+        /// <summary>
+        /// В случае стороннего изменения файла во время 
+        /// работы библиотеки, может понадобится
+        /// вручную обновить данные
+        /// </summary>
         public void RefreshData()
         {
             propsCoreXMLDoc = GetCorePropsXML();

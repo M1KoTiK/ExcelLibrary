@@ -10,10 +10,10 @@ namespace WorkingWithExcel
 {
     internal class SharedStringsHelper
     {
-        static public IEnumerable<XElement> GetSharedStringXML(ExcelWorkspace workspace)
+        static public IEnumerable<XElement> GetSharedStringXML(ExcelfileLocation fileLocation)
         {
 
-            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
+            using var fileStream = File.Open(fileLocation.OriginalFileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var workbookArchive = archive.GetEntry("xl/sharedStrings.xml");
             if (workbookArchive == null) throw new NullReferenceException("Файл xl/sharedStrings.xml отсутствует");
@@ -23,9 +23,9 @@ namespace WorkingWithExcel
             return (from el in doc.Descendants() where el.Name.LocalName == "si" select el).AsEnumerable();
         }
 
-        static public int FindSharedString(ExcelWorkspace workspace, string str)
+        static public int FindSharedString(ExcelfileLocation fileLocation, string str)
         {
-            var xmlSharedStringList = GetSharedStringXML(workspace).ToList();
+            var xmlSharedStringList = GetSharedStringXML(fileLocation).ToList();
             for (int i = 0; i < xmlSharedStringList.Count(); i++)
             {
                 if (xmlSharedStringList[i].Value == str)
@@ -36,14 +36,14 @@ namespace WorkingWithExcel
             return -1;
         }
 
-        static public int AddSharedString(ExcelWorkspace workspace, string sharedString)
+        static public int AddSharedString(ExcelfileLocation fileLocation, string sharedString)
         {
-            if (FindSharedString(workspace, sharedString) != -1)
+            if (FindSharedString(fileLocation, sharedString) != -1)
             {
                 return -1;
             }
 
-            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
+            using var fileStream = File.Open(fileLocation.OriginalFileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var workbookArchive = archive.GetEntry("xl/sharedStrings.xml");
             if (workbookArchive == null) throw new NullReferenceException("Файл xl/sharedStrings.xml отсутствует");
@@ -58,7 +58,7 @@ namespace WorkingWithExcel
 
             doc.Save(stream);
             stream.Dispose();
-            return FindSharedString(workspace, sharedString);
+            return FindSharedString(fileLocation, sharedString);
 
         }
     }

@@ -16,14 +16,14 @@ namespace WorkingWithExcel
         public string RId { get; private set; }
         public string SheetFileName { get; private set; }
 
-        ExcelWorkspace workspace;
+        FileInfo fileLocation;
 
         private XElement xmlSheetElement;
 
-        public Sheet(ExcelWorkspace workspace, XElement XMLSheetElement) 
+        public Sheet(FileInfo fileLocation)
         {
-            this.workspace = workspace;
-            this.xmlSheetElement = XMLSheetElement;
+            this.fileLocation = fileLocation;
+            //this.xmlSheetElement = XMLSheetElement;
 
             var nameAttr = xmlSheetElement.Attribute("name");
             if (nameAttr == null) throw new NullReferenceException("При попытки парсить XmlSheet не найден атрибут name");
@@ -38,7 +38,7 @@ namespace WorkingWithExcel
             if (rIdAttr == null) throw new NullReferenceException("При попытки парсить XmlSheet не найден атрибут r:id");
             RId = rIdAttr.Value;
 
-            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
+            using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var relationshipArchive = archive.GetEntry("xl/_rels/workbook.xml.rels");
             if (relationshipArchive == null) throw new NullReferenceException("Файл workbook.xml.rels отсутствует");
@@ -56,10 +56,21 @@ namespace WorkingWithExcel
             if(targetAttr == null) throw new NullReferenceException("При попытки парсить workbook.xml.rels relationship (sheet) не найден атрибут Target");
             SheetFileName = new FileInfo(targetAttr.Value).Name;
         }
+        private IEnumerable<XElement> GetXMLSheets()
+        {
+            using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);
+            using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
+            var workbookArchive = archive.GetEntry("xl/workbook.xml");
+            if (workbookArchive == null) throw new NullReferenceException("Файл xl/workbook.xml отсутствует");
+            var stream = workbookArchive.Open();
+            XDocument doc = XDocument.Load(stream);
+            stream.Dispose();
+            return (from el in doc.Descendants() where el.Name.LocalName == "sheet" select el).AsEnumerable();
+        }
 
         public void WriteValue(string value, int row, string col)
         {
-            using var fileStream = File.Open(workspace.FileLocation.FullName, FileMode.Open);
+            using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var path = "xl/worksheets/" + SheetFileName;
             var relationshipArchive = archive.GetEntry(path);
