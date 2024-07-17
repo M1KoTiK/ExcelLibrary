@@ -29,6 +29,19 @@ namespace WorkingWithExcel
         }
         
 
+        public IEnumerable<Sheet> GetSheets()
+        {
+            var sheets = new List<Sheet>();
+            foreach (var el in GetXMLSheets())
+            {
+                sheets.Add(new Sheet(this, el));
+            }
+            return sheets;
+        }
+
+        }
+        
+
         
     }
 }
