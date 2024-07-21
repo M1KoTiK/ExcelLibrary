@@ -11,7 +11,17 @@ namespace WorkingWithExcel
 {
     public class Sheet
     {
-        public string Name { get; private set; }
+        private string name;
+        public string Name
+        {
+            get => name;
+            set
+            {
+                name = value;
+                SetSheetName(value);
+            }
+        }
+
         public string SheetId { get; private set; }
         public string RId { get; private set; }
         public string SheetFileName { get; private set; }
@@ -19,21 +29,15 @@ namespace WorkingWithExcel
         FileInfo fileLocation;
 
         private XElement xmlSheetElement;
-        public Sheet(string name, string sheetId, string rId, string sheetFileName)
-        {
-            Name = name;
-            SheetId = sheetId;
-            RId = rId;
-            SheetFileName = sheetFileName;
-        }
-        public Sheet(FileInfo fileLocation)
-        {
-            this.fileLocation = fileLocation;
-            //this.xmlSheetElement = XMLSheetElement;
 
+        public Sheet(FileInfo fileLocation, XElement xmlSheetElement)
+        {
+            this.xmlSheetElement = xmlSheetElement;
+            this.fileLocation = fileLocation;
             var nameAttr = xmlSheetElement.Attribute("name");
+
             if (nameAttr == null) throw new NullReferenceException("При попытки парсить XmlSheet не найден атрибут name");
-            Name = nameAttr.Value;
+            name = nameAttr.Value;
 
             var sheetIdAttr = xmlSheetElement.Attribute("sheetId");
             if(sheetIdAttr == null) throw new NullReferenceException("При попытки парсить XmlSheet не найден атрибут sheetId");
@@ -62,6 +66,7 @@ namespace WorkingWithExcel
             if(targetAttr == null) throw new NullReferenceException("При попытки парсить workbook.xml.rels relationship (sheet) не найден атрибут Target");
             SheetFileName = new FileInfo(targetAttr.Value).Name;
         }
+
         private IEnumerable<XElement> GetXMLSheets()
         {
             using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);
@@ -95,6 +100,10 @@ namespace WorkingWithExcel
         //    }
         //    return null;
         //}
+        private void SetSheetName(string Name)
+        {
+
+        }
         public void WriteValue(string value, int row, string col)
         {
             using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);

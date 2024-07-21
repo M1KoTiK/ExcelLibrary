@@ -14,7 +14,6 @@ namespace WorkingWithExcel
     public class ExcelFile
     {
         public FileInfo FileLocation { get; private set; }
-        
         public ExcelDocumentInfo DocInfo { get; private set; }
         public IEnumerable<Sheet> Sheets { get; private set; }
         public ExcelFile(FileInfo fileLocation)
@@ -22,26 +21,24 @@ namespace WorkingWithExcel
             FileLocation = fileLocation;
             DocInfo = new ExcelDocumentInfo(FileLocation);
         }
-
-        private void TryLoadInfoFromFile()
+        public void AddSheet(string name)
         {
-
+            throw new NotImplementedException();
         }
-        
-
-        public IEnumerable<Sheet> GetSheets()
+        public void RemoveSheet(string name) 
         {
-            var sheets = new List<Sheet>();
-            foreach (var el in GetXMLSheets())
-            {
-                sheets.Add(new Sheet(this, el));
-            }
-            return sheets;
-        }
-
+            throw new NotImplementedException();
         }
         
-
-        
+        private IEnumerable<Sheet> GetSheets()
+        {
+            throw new NotImplementedException();
+            //var sheets = new List<Sheet>();
+            //foreach (var el in GetXMLSheets())
+            //{
+            //    sheets.Add(new Sheet(this, el));
+            //}
+            //return sheets;
+        }  
     }
 }
