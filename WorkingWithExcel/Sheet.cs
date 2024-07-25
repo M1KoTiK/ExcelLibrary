@@ -29,8 +29,8 @@ namespace WorkingWithExcel
         FileInfo fileLocation;
 
         private XElement xmlSheetElement;
-
-        public Sheet(FileInfo fileLocation, XElement xmlSheetElement)
+        
+        private Sheet(FileInfo fileLocation, XElement xmlSheetElement)
         {
             this.xmlSheetElement = xmlSheetElement;
             this.fileLocation = fileLocation;
@@ -66,10 +66,19 @@ namespace WorkingWithExcel
             if(targetAttr == null) throw new NullReferenceException("При попытки парсить workbook.xml.rels relationship (sheet) не найден атрибут Target");
             SheetFileName = new FileInfo(targetAttr.Value).Name;
         }
-
-        private IEnumerable<XElement> GetXMLSheets()
+        public static IEnumerable<Sheet> GetSheets(FileInfo excelFileLocation)
         {
-            using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);
+            var sheets = new List<Sheet>();
+            foreach (var el in GetXMLSheets(excelFileLocation))
+            {
+                sheets.Add(new Sheet(excelFileLocation, el));
+            }
+            return sheets;
+        }
+
+        private static IEnumerable<XElement> GetXMLSheets(FileInfo excelFileLocation)
+        {
+            using var fileStream = File.Open(excelFileLocation.FullName, FileMode.Open);
             using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
             var workbookArchive = archive.GetEntry("xl/workbook.xml");
             if (workbookArchive == null) throw new NullReferenceException("Файл xl/workbook.xml отсутствует");
