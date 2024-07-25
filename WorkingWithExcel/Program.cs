@@ -22,6 +22,10 @@ namespace WorkingWithExcel
             Console.WriteLine(ex.DocInfo.ModifyDate);
             ex.DocInfo.ModifyDate = DateTime.Now;
             Console.WriteLine(ex.DocInfo.ModifyDate);
+            foreach (var el in ex.Sheets)
+            {
+                Console.WriteLine(el.Name);
+            }
             //setRelationshipForMedia(inputFilePath, imageFile, "image1");
         }
 

@@ -19,7 +19,7 @@ namespace WorkingWithExcel
         public ExcelFile(FileInfo fileLocation)
         {
             FileLocation = fileLocation;
-            DocInfo = new ExcelDocumentInfo(FileLocation);
+            Update();
         }
         public void AddSheet(string name)
         {
@@ -30,15 +30,10 @@ namespace WorkingWithExcel
             throw new NotImplementedException();
         }
         
-        private IEnumerable<Sheet> GetSheets()
+        public void Update()
         {
-            throw new NotImplementedException();
-            //var sheets = new List<Sheet>();
-            //foreach (var el in GetXMLSheets())
-            //{
-            //    sheets.Add(new Sheet(this, el));
-            //}
-            //return sheets;
+            DocInfo = new ExcelDocumentInfo(FileLocation);
+            Sheets = Sheet.GetSheets(FileLocation);
         }  
     }
 }
