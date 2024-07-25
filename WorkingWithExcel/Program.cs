@@ -16,8 +16,7 @@ namespace WorkingWithExcel
             var imageFile = new FileInfo("C:\\Users\\User\\Pictures\\image_kaiji.jpg");
 
             var inputFilePath = new FileInfo("C:\\Users\\User\\Desktop\\Проекты\\ExcelLibrary\\testExcel.xlsx");
-            var outputFilePath = "C:\\Users\\User\\Desktop\\Проекты\\ExcelLibrary\\testExcel.xlsx";
-            Console.WriteLine(new ExcelfileLocation(inputFilePath).Open().DocInfo.Author);
+            ExcelWorkspace
             var ex = new ExcelFile(inputFilePath);
             Console.WriteLine(ex.DocInfo.ModifyDate);
             ex.DocInfo.ModifyDate = DateTime.Now;

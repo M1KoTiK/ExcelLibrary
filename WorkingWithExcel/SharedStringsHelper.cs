@@ -10,7 +10,7 @@ namespace WorkingWithExcel
 {
     internal class SharedStringsHelper
     {
-        static public IEnumerable<XElement> GetSharedStringXML(ExcelfileLocation fileLocation)
+        static public IEnumerable<XElement> GetSharedStringXML(ExcelWorkSpace fileLocation)
         {
 
             using var fileStream = File.Open(fileLocation.OriginalFileLocation.FullName, FileMode.Open);
@@ -23,7 +23,7 @@ namespace WorkingWithExcel
             return (from el in doc.Descendants() where el.Name.LocalName == "si" select el).AsEnumerable();
         }
 
-        static public int FindSharedString(ExcelfileLocation fileLocation, string str)
+        static public int FindSharedString(ExcelWorkSpace fileLocation, string str)
         {
             var xmlSharedStringList = GetSharedStringXML(fileLocation).ToList();
             for (int i = 0; i < xmlSharedStringList.Count(); i++)
@@ -36,7 +36,7 @@ namespace WorkingWithExcel
             return -1;
         }
 
-        static public int AddSharedString(ExcelfileLocation fileLocation, string sharedString)
+        static public int AddSharedString(ExcelWorkSpace fileLocation, string sharedString)
         {
             if (FindSharedString(fileLocation, sharedString) != -1)
             {

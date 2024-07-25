@@ -10,12 +10,12 @@ using System.Xml.Linq;
 
 namespace WorkingWithExcel
 {
-    public class ExcelfileLocation
+    public class ExcelWorkSpace
     {
         public FileInfo OriginalFileLocation { get; private set; }
         public FileInfo? DuplicateFileLocation { get; private set; } = null;
         
-        public ExcelfileLocation(FileInfo fileLocation)
+        public ExcelWorkSpace(FileInfo fileLocation)
         {
             OriginalFileLocation = fileLocation;
         }
