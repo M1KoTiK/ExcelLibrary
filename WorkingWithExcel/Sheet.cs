@@ -113,6 +113,20 @@ namespace WorkingWithExcel
         {
 
         }
+
+        public void WriteString(string value, int row, string col)
+        {
+            var sharedStringNumber = SharedStringsHelper.AddSharedString(fileLocation, value);
+            using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);
+            using ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Update);
+            var path = "xl/worksheets/" + SheetFileName;
+            var relationshipArchive = archive.GetEntry(path);
+            if (relationshipArchive == null) throw new NullReferenceException("Файл " + SheetFileName + "отсутствует");
+            var stream = relationshipArchive.Open();
+            XDocument doc = XDocument.Load(stream);
+            var rows = (from r in doc.Descendants() where r.Name.LocalName == "row" select r).AsEnumerable();
+        }
+
         public void WriteValue(string value, int row, string col)
         {
             using var fileStream = File.Open(fileLocation.FullName, FileMode.Open);
@@ -143,7 +157,12 @@ namespace WorkingWithExcel
                     var valueEl = (from el in colEl.Descendants() where el.Name.LocalName == "v" select el).FirstOrDefault();
                     if(valueEl != null)
                     {
-
+                        valueEl.Value = value;
+                        stream.Position = 0;
+                        stream.SetLength(0);
+                        doc.Save(stream);
+                        stream.Dispose();
+                        return;
                     }
                 }
                 
@@ -163,7 +182,7 @@ namespace WorkingWithExcel
                             var valueElement = (from el in c.Descendants() where el.Name.LocalName == "v" select el).FirstOrDefault();
                             if (valueElement == null)
                             {
-                                Console.WriteLine("123asd");
+                                
                             }
                             else
                             {
